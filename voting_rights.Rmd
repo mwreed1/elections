@@ -1,0 +1,181 @@
+---
+title: "voting_rights"
+author: "margaret"
+date: "2/18/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r library, message=F}
+library(tidyverse)
+```
+
+
+```{r load-data, message=F}
+durham <- read_tsv("ncvoter32.txt")
+```
+
+```{r explore-data}
+# want to look at young people in durham
+durham %>%
+  filter(age_at_year_end < 24) %>%
+  count(mail_addr1) %>%
+  arrange(desc(n))
+```
+
+Common street addresses of duke students include:
+
+1605 ERWIN RD, 300 SWIFT AVE, Campus dr, wannamaker dr, moreene rd, towerview rd
+
+```{r find-students}
+duke_students <- durham %>%
+  filter(age_at_year_end < 24,
+        (str_detect(mail_addr1, "DUKE UNIVERSITY") | str_detect(mail_addr2, "DUKE") |
+           str_detect(mail_addr1, "ERWIN") | str_detect(mail_addr1, "SWIFT") |
+           str_detect(mail_addr1, "CAMPUS") | str_detect(mail_addr1, "WANNAMAKER") |
+           str_detect(mail_addr1, "TOWERVIEW")
+         ),
+        precinct_abbrv <= 10 | is.na(precinct_abbrv)
+         )
+```
+
+```{r party}
+duke_students %>%
+  ggplot(
+    aes(
+      x = fct_infreq(party_cd), 
+      fill = fct_infreq(party_cd)
+      )
+    ) +
+  geom_bar() +
+  scale_fill_manual(values = c("blue", "gray", "red", "yellow")) +
+  labs(
+    x = "Party",
+    y = "",
+    title = "Registered parties of Duke students"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+
+```{r gender}
+duke_students %>%
+  ggplot(
+    aes(
+      x = fct_infreq(gender_code), 
+      fill = fct_infreq(gender_code)
+      )
+    ) +
+  geom_bar() +
+  scale_fill_manual(values = c("springgreen1", "gray", "orange")) +
+  labs(
+    x = "Gender",
+    y = "",
+    title = "Declared genders of registered Duke students"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+```{r race}
+duke_students %>%
+  ggplot(
+    aes(
+      x = fct_other(fct_infreq(race_code), drop = c("U"), other_level = "U"), 
+      fill = fct_other(fct_infreq(race_code), drop = c("U"), other_level = "U")
+      )
+    ) +
+  geom_bar() +
+  scale_fill_brewer(palette = "Set3") +
+  labs(
+    x = "Race",
+    y = "",
+    title = "Declared races of registered Duke students"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+```{r new-var}
+durham <- durham %>%
+  mutate(
+    duke_student = ifelse(
+      (age_at_year_end < 24 &
+        (str_detect(mail_addr1, "DUKE UNIVERSITY") | str_detect(mail_addr2, "DUKE") |
+           str_detect(mail_addr1, "ERWIN") | str_detect(mail_addr1, "SWIFT") |
+           str_detect(mail_addr1, "CAMPUS") | str_detect(mail_addr1, "WANNAMAKER") |
+           str_detect(mail_addr1, "TOWERVIEW")
+         ) &
+        (precinct_abbrv <= 10 | is.na(precinct_abbrv))
+         ), 
+      "yes", 
+      "no"
+    )
+  )
+
+durham %>%
+  count(duke_student)
+```
+
+```{r durham-party}
+durham %>%
+  filter(!is.na(duke_student)) %>%
+  ggplot(
+    aes(
+      y = duke_student,
+      fill = fct_infreq(party_cd)
+      )
+  ) +
+  geom_bar(position = "fill") +
+  scale_fill_manual(values = c("blue", "gray", "red", "yellow")) +
+  labs(
+    x = "Proportion",
+    y = "Duke student?",
+    fill = "Registered party",
+    title = "Party registrations of Durham county residents"
+  ) +
+  theme_minimal()
+```
+
+```{r durham-gender}
+durham %>%
+  filter(!is.na(duke_student)) %>%
+  ggplot(
+    aes(
+      y = duke_student,
+      fill = fct_infreq(gender_code)
+      )
+  ) +
+  geom_bar(position = "fill") +
+  scale_fill_manual(values = c("springgreen1", "orange", "gray")) +  
+  labs(
+    x = "Proportion",
+    y = "Duke student?",
+    fill = "Declared gender",
+    title = "Declared gender of those registered to vote in Durham county"
+  ) +
+  theme_minimal()
+```
+
+```{r durham-race}
+durham %>%
+  filter(!is.na(duke_student)) %>%
+  ggplot(
+    aes(
+      y = duke_student,
+      fill = fct_other(fct_infreq(race_code), drop = c("U"), other_level = "U")
+      )
+  ) +
+  geom_bar(position = "fill") +
+  scale_fill_brewer(palette = "Set3") +  
+  labs(
+    x = "Proportion",
+    y = "Duke student?",
+    fill = "Race",
+    title = "Race of those registered to vote in Durham county"
+  ) +
+  theme_minimal()
+```
