@@ -2,7 +2,7 @@
 title: "voting-rights-v2"
 author: "margaret"
 date: "3/30/2022"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -15,36 +15,22 @@ library(janitor)
 library(scales)
 ```
 
-
-```{r load-data, message=F}
-hist <- read_tsv("VR_Snapshot_20181106.txt", locale = readr::locale(encoding = "UTF-16"))
-```
 data from: https://dl.ncsbe.gov/index.html?prefix=data/Snapshots/
+
+```{r load-data}
+durham21 <- read_csv("data/duke_2021.csv")
+```
 
 
 ```{r find-students}
-duke_students <- durham_hist4 %>%
+duke_students <- durham21 %>%
   filter(
     street_name %in% c("DUKE UNIVERSITY WEST CAMPUS", "DUKE UNIVERSITY EAST CAMPUS", "TOWERVIEW", "ALEXANDER", "YEARBY") |
       (street_name %in% c("BASSETT", "EPWORTH", "FEW QUAD", "GILBERT ADDOMS", "GILES", "JARVIS", "MAXWELL", "MIRECOURT", "PEGRAM", "RANDOLPH", "RANDOLPH HALL", "ROUND TABLE", "SOUTHGATE", "WAYNE MANOR", "WILSON", "WANNAMAKER") && street_type_cd == "DORM") |
       (street_name == "SWIFT" & house_num == "300") |
       (street_name == "CAMPUS"  & str_detect(house_num, "13\\d\\d"))
   )
-
-duke_select <- duke_students %>%
-  select(voter_reg_num, snapshot_dt, race_desc, ethnic_desc, party_desc, sex, 
-         age, registr_dt, birth_place)
 ```
-
-
-
-2041352    64 90 columns 64 columns /private/var/folders/tm/n7s7fd390fq7kbs03xmfk_680000gn/T/RtmpY…
-4110154    21 90 columns 21 columns /private/var/folders/tm/n7s7fd390fq7kbs03xmfk_680000gn/T/RtmpY…
-6155273    39 90 columns 39 columns /private/var/folders/tm/n7s7fd390fq7kbs03xmfk_680000gn/T/RtmpY…
-8191646    27 90 columns 27 columns /private/var/folders/tm/n7s7fd390fq7kbs03xmfk_680000gn/T/RtmpY…
-10121134  39 90 columns 39 columns /private/var/folders/tm/n7s7fd390fq7kbs03xmfk_680000gn/T/RtmpY…
-12219472  63 90 columns 63 columns /private/var/folders/tm/n7s7fd390fq7kbs03xmfk_680000gn/T/RtmpY…
-
 
 ```{r}
 duke_students %>%
@@ -80,7 +66,7 @@ duke_students %>%
 ```
 
 ```{r}
-durham_hist4 %>%
+durham21 %>%
   count(street_name, street_type_cd) %>%
   arrange(desc(n))
 ```
