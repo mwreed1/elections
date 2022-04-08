@@ -25,8 +25,14 @@ durham21 <- read_csv("data/duke_2021.csv")
 ```{r find-students}
 duke_students <- durham21 %>%
   filter(
-    street_name %in% c("DUKE UNIVERSITY WEST CAMPUS", "DUKE UNIVERSITY EAST CAMPUS", "TOWERVIEW", "ALEXANDER", "YEARBY") |
-      (street_name %in% c("BASSETT", "EPWORTH", "FEW QUAD", "GILBERT ADDOMS", "GILES", "JARVIS", "MAXWELL", "MIRECOURT", "PEGRAM", "RANDOLPH", "RANDOLPH HALL", "ROUND TABLE", "SOUTHGATE", "WAYNE MANOR", "WILSON", "WANNAMAKER") && street_type_cd == "DORM") |
+    street_name %in% c("DUKE UNIVERSITY WEST CAMPUS", 
+                       "DUKE UNIVERSITY EAST CAMPUS", "TOWERVIEW", "ALEXANDER", 
+                       "YEARBY") |
+      (street_name %in% c("BASSETT", "EPWORTH", "FEW QUAD", "GILBERT ADDOMS", 
+                          "GILES", "JARVIS", "MAXWELL", "MIRECOURT", "PEGRAM", 
+                          "RANDOLPH", "RANDOLPH HALL", "ROUND TABLE", 
+                          "SOUTHGATE", "WAYNE MANOR", "WILSON", "WANNAMAKER") && 
+         street_type_cd == "DORM") |
       (street_name == "SWIFT" & house_num == "300") |
       (street_name == "CAMPUS"  & str_detect(house_num, "13\\d\\d"))
   )
@@ -68,6 +74,10 @@ duke_students %>%
 ```{r}
 durham21 %>%
   count(street_name, street_type_cd) %>%
+  arrange(desc(n))
+
+durham21 %>%
+  count(ncid) %>%
   arrange(desc(n))
 ```
 
