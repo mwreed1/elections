@@ -1,7 +1,9 @@
-final-writeup
+Final Memo
 ================
 Margaret Reed
 4/15/2022
+
+### Intro
 
 Many of the ‘bluest’ cities and towns in America house a variety of
 universities and colleges. We began our data analysis investigation
@@ -13,6 +15,8 @@ over time? How does this compare with the number of Dukes students who
 ended up voting in North Carolina? Likewise, we were also interested in
 looking into how political party affiliations and voting habits have
 changed over time.
+
+### Methodology
 
 To begin, we needed data. We ended up using NC voter registration data
 and NC voter history data. However, nowhere in our data sets was there a
@@ -35,6 +39,8 @@ analysis only looks at registered voters in Durham county, NC- we are
 not considering any of the students who may have decided to vote in
 their home county or state. After classifying who Duke students were
 (with a margin of error), we were ready to begin our analysis.
+
+### Analysis
 
 First we look into how many duke students registered to vote during
 presidential election years.
@@ -60,6 +66,14 @@ Interestingly, there seemed to be more voters than those who registered
 in 2020, more research is needed to understand if this is a data
 collection problem, or if this could actually have been the case.
 
+### Next Steps:
+
 Regardless, with midterm elections coming up it is important for all the
 Duke students who are interested, to feel comfortable and empowered to
 register and then vote.
+
+  - People to contact
+
+  - duke orgs for voting/ registering on campus
+
+  - final thoughts / conclusions
