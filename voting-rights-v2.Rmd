@@ -48,6 +48,7 @@ full_data <- inner_join(
     datev = as.Date(election_lbl, format = "%m/%d/%Y"),
     voted_year = lubridate::year(datev)
     )
+
 election_year <- full_data %>%
   distinct(voter_reg_num, .keep_all = T) %>%
   count(voted_year) %>%
@@ -89,7 +90,6 @@ durham21 %>%
 
 ```{r}
 duke_students %>%
-  filter(registr_age < 40) %>%
   count(registr_yr, party_desc) %>%
   filter(registr_yr >= 2000,
          registr_yr %% 4 == 0) %>%
@@ -98,13 +98,31 @@ duke_students %>%
   geom_point() +
   scale_y_continuous(labels = scales::label_comma()) +
   scale_x_continuous(breaks = seq(2000, 2020, by = 4)) +
-  scale_color_manual(values = c("blue", "green", "red", "grey")) +
+  scale_color_manual(values = c("blue4", "green3", "red3", "grey")) +
   labs(
     x = "Year",
     y = "Number of Duke students registered"
   ) +
   theme_minimal()
 ```
+
+
+```{r}
+duke_students %>%
+  filter(registr_yr >= 2000, registr_yr %% 4 == 0) %>%
+  ggplot(aes(x = registr_yr, fill = fct_rev(fct_infreq(party_desc)))) +
+  geom_bar(position = "fill") +
+  scale_x_continuous(breaks = seq(2000, 2020, by = 4)) +
+  scale_fill_manual(values = c("green3", "red3", "blue4", "grey")) +
+  labs(
+    x = "Year",
+    y = NULL,
+    fill = "Party",
+    title = "Duke students' registered party over time"
+  ) +
+  theme_minimal()
+```
+
 
 
 ```{r}
@@ -119,20 +137,11 @@ full_data %>%
   scale_x_continuous(breaks = seq(2000, 2020, by = 4)) +
   labs(
     x = "Year",
-    y = "Number of Duke students registered"
+    y = "Number of Duke students who voted"
   ) +
   theme_minimal()
 ```
 
-
-```{r}
-full_data %>%
-  mutate(
-    datev = as.Date(election_lbl, format = "%m/%d/%Y"),
-    voted_year = lubridate::year(datev)
-  ) %>%
-  select(datev, voted_year, everything())
-```
 
 ```{r}
 ggplot() +
@@ -151,6 +160,41 @@ ggplot() +
     x = "Year",
     y = "Number of Duke students",
     title = "Number of Duke students who voted vs who registered to vote"
+  ) +
+  theme_minimal()
+```
+
+
+```{r}
+full_data %>%
+  filter(voted_year %in% seq(2012, 2020, 4)) %>%
+  ggplot(
+    aes(x = voted_year, fill = fct_rev(fct_infreq(voting_method)))
+  ) +
+  geom_bar(position = "fill") +
+  colorblindr::scale_fill_OkabeIto() +
+  labs(
+    x = "Year", 
+    y = NULL,
+    fill = "Voting method",
+    title = "Duke students' voting method over time"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+full_data %>%
+  filter(voted_year %in% seq(2012, 2020, 4)) %>%
+  ggplot(
+    aes(x = voted_year, fill = fct_rev(fct_infreq(voted_party_desc)))
+  ) +
+  geom_bar(position = "fill") +
+  scale_fill_manual(values = c("green3", "red3", "grey", "blue4")) +
+  labs(
+    x = "Year", 
+    y = NULL,
+    fill = "Party",
+    title = "Duke students' voted party over time"
   ) +
   theme_minimal()
 ```

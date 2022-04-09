@@ -1,0 +1,161 @@
+---
+title: "final-writeup"
+author: "Margaret Reed"
+date: "4/15/2022"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Many of the ‘bluest’ cities and towns in America house a variety of universities 
+and colleges. We began our data analysis investigation interested in 
+investigating the impact Duke and other university students have on the 
+elections of Durham and North Carolina. After parsing and exploring the data, we 
+came away with a couple of questions to further pursue. How have NC Duke student 
+registration numbers changed over time? How does this compare with the number of 
+Dukes students who ended up voting in North Carolina? Likewise, we were also 
+interested in looking into how political party affiliations and voting habits 
+have changed over time. 
+
+To begin, we needed data. We ended up using NC voter registration data and NC 
+voter history data. However, nowhere in our data sets was there a column for 
+Duke Student: Y/N. Therefore, we needed to find some sort of heuristic to 
+approximate what constitutes a Duke student using the data we had available. 
+After some trial and error, we ended up classifying Duke students as those whose 
+mailing addresses were located on Duke's campus. The specific methodology is as 
+follows:
+The mailing address must specify a voter lives in a dorm named: "Bassett", 
+"Epworth", "Few Quad", "Gilbert Addoms", "Giles", "Jarvis", "Maxwell", 
+"Mirecourt", "Pegram", "Randolph", "Randolph Hall", "Round Table", "Southgate", 
+"Wayne Manor", "Wilson", or "Wannamaker". Otherwise, the street name must be one 
+of the following: "Duke University West Campus", "Duke University East Campus", 
+"Towerview", "Alexander", or "Yearby". Finally, we also looked at two special 
+cases: Duke-owned apartment 300 Swift, and the few outliers that were located on 
+Campus Drive. All of these decisions were driven by an exploration of the data 
+and looking at where high numbers of young people were concentrated near Duke's 
+campus. Because our analysis only looks at registered voters in Durham county, 
+NC- we are not considering any of the students who may have decided to vote in 
+their home county or state. After classifying who Duke students were (with a 
+margin of error), we were ready to begin our analysis. 
+
+
+```{r library, include = F}
+library(tidyverse)
+library(janitor)
+library(scales)
+```
+
+```{r load-data, include = F}
+durham21 <- read_csv("data/duke_2021.csv")
+durhamhist <- read_tsv("data/ncvhis32.txt")
+```
+
+
+```{r find-students, include = F}
+duke_students <- durham21 %>%
+  filter(
+    street_name %in% c("DUKE UNIVERSITY WEST CAMPUS", 
+                       "DUKE UNIVERSITY EAST CAMPUS", "TOWERVIEW", "ALEXANDER", 
+                       "YEARBY") |
+      (street_name %in% c("BASSETT", "EPWORTH", "FEW QUAD", "GILBERT ADDOMS", 
+                          "GILES", "JARVIS", "MAXWELL", "MIRECOURT", "PEGRAM", 
+                          "RANDOLPH", "RANDOLPH HALL", "ROUND TABLE", 
+                          "SOUTHGATE", "WAYNE MANOR", "WILSON", "WANNAMAKER") && 
+         street_type_cd == "DORM") |
+      (street_name == "SWIFT" & house_num == "300") |
+      (street_name == "CAMPUS"  & str_detect(house_num, "13\\d\\d"))
+  )
+
+full_data <- inner_join(
+  duke_students, 
+  durhamhist, 
+  by = c("voter_reg_num" = "voter_reg_num")
+  ) %>%
+  mutate(
+    registr_yr = lubridate::year(registr_dt),
+    datev = as.Date(election_lbl, format = "%m/%d/%Y"),
+    voted_year = lubridate::year(datev)
+    )
+
+election_year <- full_data %>%
+  distinct(voter_reg_num, .keep_all = T) %>%
+  count(voted_year) %>%
+  filter(voted_year %in% c(2004, 2008, 2012, 2016, 2020))
+election_yr_reg <- duke_students %>%
+  distinct(voter_reg_num, .keep_all = T) %>%
+  count(registr_yr) %>%
+  filter(registr_yr %in% c(2004, 2008, 2012, 2016, 2020))
+```
+
+First we look into how many duke students registered to vote during presidential election years.
+
+```{r reg-election, echo = F}
+duke_students %>%
+  ggplot(aes(x = registr_yr, y = n)) +
+  geom_line(data = election_yr_reg, color = "red") +
+  geom_point(data = election_yr_reg, color = "red", size = 3) +
+  scale_y_continuous(labels = scales::label_comma()) +
+  scale_x_continuous(breaks = seq(2000, 2020, by = 4)) +
+  labs(
+    x = "Year",
+    y = "Number of Duke students registered"
+  ) +
+  theme_minimal()
+```
+
+Interestingly, it seems as if Duke students were the most motivated to 
+registered to vote in the 2012 election. It would be interesting to investigate 
+further whether this is actually true- and dig into why, or if this can be 
+attributed to the methodology capturing the most duke students during 2012. 
+
+
+Next we looked at Duke students who actually voted in presidential election 
+years.
+
+```{r voted-election, echo = F}
+full_data %>%
+  ggplot(aes(x = voted_year, y = n)) +
+  geom_line(data = election_year, color = "blue") +
+  geom_point(data = election_year, color = "blue", size = 3) +
+  scale_y_continuous(labels = scales::label_comma()) +
+  scale_x_continuous(breaks = seq(2000, 2020, by = 4)) +
+  labs(
+    x = "Year",
+    y = "Number of Duke students who voted"
+  ) +
+  theme_minimal()
+```
+
+Here we compared our two data sets:
+
+```{r both-election, echo = F, warning = F}
+ggplot() +
+  geom_line(data = election_yr_reg, aes(x = registr_yr, y = n, color = "Registered")) +
+  geom_line(data = election_year, aes(x = voted_year, y = n, color = "Voted")) +
+  geom_point(data = election_yr_reg, aes(x = registr_yr, y = n, color = "Registered")) +
+  geom_point(data = election_year, aes(x = voted_year, y = n, color = "Voted")) +
+  scale_y_continuous(labels = scales::label_comma()) +
+  scale_x_continuous(breaks = seq(2012, 2020, by = 4), limits = c(2012, 2020)) +
+  scale_color_manual(
+    name = "Duke Students",
+    breaks = c("Voted", "Registered"),
+    values = c("Voted" = "blue", "Registered" = "red")
+  ) +
+  labs(
+    x = "Year",
+    y = "Number of Duke students",
+    title = "Number of Duke students who voted vs who registered to vote"
+  ) +
+  theme_minimal()
+```
+
+Interestingly, there seemed to be more voters than those who registered in 2020, 
+more research is needed to understand if this is a data collection problem, or 
+if this could actually have been the case. 
+
+
+Regardless, with midterm elections coming up it is important for all the Duke 
+students who are interested, to feel comfortable and empowered to register and 
+then vote. 
