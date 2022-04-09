@@ -30,19 +30,23 @@ approximate what constitutes a Duke student using the data we had available.
 After some trial and error, we ended up classifying Duke students as those whose 
 mailing addresses were located on Duke's campus. The specific methodology is as 
 follows:
-The mailing address must specify a voter lives in a dorm named: "Bassett", 
+
+- The mailing address must specify a voter lives in a dorm named: "Bassett", 
 "Epworth", "Few Quad", "Gilbert Addoms", "Giles", "Jarvis", "Maxwell", 
 "Mirecourt", "Pegram", "Randolph", "Randolph Hall", "Round Table", "Southgate", 
-"Wayne Manor", "Wilson", or "Wannamaker". Otherwise, the street name must be one 
-of the following: "Duke University West Campus", "Duke University East Campus", 
-"Towerview", "Alexander", or "Yearby". Finally, we also looked at two special 
-cases: Duke-owned apartment 300 Swift, and the few outliers that were located on 
-Campus Drive. All of these decisions were driven by an exploration of the data 
-and looking at where high numbers of young people were concentrated near Duke's 
-campus. Because our analysis only looks at registered voters in Durham county, 
-NC- we are not considering any of the students who may have decided to vote in 
-their home county or state. After classifying who Duke students were (with a 
-margin of error), we were ready to begin our analysis. 
+"Wayne Manor", "Wilson", or "Wannamaker". 
+
+- Otherwise, the street name must be one of the following: "Duke University West 
+Campus", "Duke University East Campus", "Towerview", "Alexander", or "Yearby".
+
+- Finally, we also looked at two special cases: Duke-owned apartment 300 Swift, and the few outliers that were located on Campus Drive. 
+
+All of these decisions were driven by an exploration of the data and looking at 
+where high numbers of young people were concentrated near Duke's campus. Because 
+our analysis only looks at registered voters in Durham county, NC- we are not 
+considering any of the students who may have decided to vote in their home 
+county or state. After classifying who the Duke students were (within our 
+methodology), we were ready to begin our analysis. 
 
 
 ```{r library, include = F}
@@ -172,3 +176,71 @@ then vote.
 - duke orgs for voting/ registering on campus
 
 - final thoughts / conclusions
+
+
+
+
+### Further analysis
+
+We also looked some into our secondary question of how Duke student's poltical 
+party affiliations changed over time. 
+
+```{r party-time-election-reg, echo = F}
+duke_students %>%
+  count(registr_yr, party_desc) %>%
+  filter(registr_yr >= 2000,
+         registr_yr %% 4 == 0) %>%
+  ggplot(aes(x = registr_yr, y = n, color = party_desc)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(labels = scales::label_comma()) +
+  scale_x_continuous(breaks = seq(2000, 2020, by = 4)) +
+  scale_color_manual(values = c("blue4", "green3", "red3", "grey")) +
+  labs(
+    x = "Year",
+    y = "Number of Duke students registered",
+    color = "Political party"
+  ) +
+  theme_minimal()
+```
+
+It seems that the number of Duke students registered as Democrat increased over 
+time and the number of Duke students registered as unaffiliated decreased. 
+
+
+The same pattern can be seen in this filled bar chart.
+
+```{r party-split-reg, echo = F}
+duke_students %>%
+  filter(registr_yr >= 2000, registr_yr %% 4 == 0) %>%
+  ggplot(aes(x = registr_yr, fill = fct_rev(fct_infreq(party_desc)))) +
+  geom_bar(position = "fill") +
+  scale_x_continuous(breaks = seq(2000, 2020, by = 4)) +
+  scale_fill_manual(values = c("green3", "red3", "blue4", "grey")) +
+  labs(
+    x = "Year",
+    y = NULL,
+    fill = "Party",
+    title = "Duke students' registered party over time"
+  ) +
+  theme_minimal()
+```
+
+Additionally we looked at voting method over time:
+```{r vote-method, echo = F}
+full_data %>%
+  filter(voted_year %in% seq(2012, 2020, 4)) %>%
+  ggplot(
+    aes(x = voted_year, fill = fct_rev(fct_infreq(voting_method)))
+  ) +
+  geom_bar(position = "fill") +
+  scale_x_continuous(breaks = seq(2008, 2020, by = 4)) +
+  colorblindr::scale_fill_OkabeIto() +
+  labs(
+    x = "Year", 
+    y = NULL,
+    fill = "Voting method",
+    title = "Duke students' voting method over time"
+  ) +
+  theme_minimal()
+```

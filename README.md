@@ -24,21 +24,28 @@ column for Duke Student: Y/N. Therefore, we needed to find some sort of
 heuristic to approximate what constitutes a Duke student using the data
 we had available. After some trial and error, we ended up classifying
 Duke students as those whose mailing addresses were located on Duke’s
-campus. The specific methodology is as follows: The mailing address must
-specify a voter lives in a dorm named: “Bassett”, “Epworth”, “Few Quad”,
-“Gilbert Addoms”, “Giles”, “Jarvis”, “Maxwell”, “Mirecourt”, “Pegram”,
-“Randolph”, “Randolph Hall”, “Round Table”, “Southgate”, “Wayne
-Manor”, “Wilson”, or “Wannamaker”. Otherwise, the street name must be
-one of the following: “Duke University West Campus”, “Duke University
-East Campus”, “Towerview”, “Alexander”, or “Yearby”. Finally, we also
-looked at two special cases: Duke-owned apartment 300 Swift, and the few
-outliers that were located on Campus Drive. All of these decisions were
-driven by an exploration of the data and looking at where high numbers
-of young people were concentrated near Duke’s campus. Because our
-analysis only looks at registered voters in Durham county, NC- we are
-not considering any of the students who may have decided to vote in
-their home county or state. After classifying who Duke students were
-(with a margin of error), we were ready to begin our analysis.
+campus. The specific methodology is as follows:
+
+  - The mailing address must specify a voter lives in a dorm named:
+    “Bassett”, “Epworth”, “Few Quad”, “Gilbert Addoms”, “Giles”,
+    “Jarvis”, “Maxwell”, “Mirecourt”, “Pegram”, “Randolph”, “Randolph
+    Hall”, “Round Table”, “Southgate”, “Wayne Manor”, “Wilson”, or
+    “Wannamaker”.
+
+  - Otherwise, the street name must be one of the following: “Duke
+    University West Campus”, “Duke University East Campus”, “Towerview”,
+    “Alexander”, or “Yearby”.
+
+  - Finally, we also looked at two special cases: Duke-owned apartment
+    300 Swift, and the few outliers that were located on Campus Drive.
+
+All of these decisions were driven by an exploration of the data and
+looking at where high numbers of young people were concentrated near
+Duke’s campus. Because our analysis only looks at registered voters in
+Durham county, NC- we are not considering any of the students who may
+have decided to vote in their home county or state. After classifying
+who the Duke students were (within our methodology), we were ready to
+begin our analysis.
 
 ### Analysis
 
@@ -77,3 +84,21 @@ register and then vote.
   - duke orgs for voting/ registering on campus
 
   - final thoughts / conclusions
+
+### Further analysis
+
+We also looked some into our secondary question of how Duke student’s
+poltical party affiliations changed over time.
+
+![](README_files/figure-gfm/party-time-election-reg-1.png)<!-- -->
+
+It seems that the number of Duke students registered as Democrat
+increased over time and the number of Duke students registered as
+unaffiliated decreased.
+
+The same pattern can be seen in this filled bar chart.
+
+![](README_files/figure-gfm/party-split-reg-1.png)<!-- -->
+
+Additionally we looked at voting method over time:
+![](README_files/figure-gfm/vote-method-1.png)<!-- -->
