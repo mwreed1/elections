@@ -47,12 +47,42 @@ have decided to vote in their home county or state. After classifying
 who the Duke students were (within our methodology), we were ready to
 begin our analysis.
 
+``` r
+election_year <- full_data %>%
+  filter(
+    str_detect(election_desc, "GENERAL"),
+    voted_year %in% c(2004, 2008, 2012, 2016, 2020)
+    ) %>%
+  select(voter_reg_num, voted_year) %>%
+  distinct() %>%
+  count(voted_year)
+  
+
+election_yr_reg <- duke_students %>%
+  mutate(cancel_yr = lubridate::year(cancellation_dt)) %>%
+  mutate(
+    cancel_yr = ifelse(cancel_yr == 1900, 2023, cancel_yr)
+  ) %>%
+  transmute(voter_reg_num, year = map2(registr_yr, cancel_yr, seq, by = 1)) %>%
+  unnest(cols = c(year)) %>%
+  filter(year %in% c(2004, 2008, 2012, 2016, 2020)) %>%
+  select(voter_reg_num, year) %>%
+  distinct() %>%
+  count(year)
+
+newly_reg <- duke_students %>%
+  filter(registr_yr %in% c(2004, 2008, 2012, 2016, 2020)) %>%
+  select(voter_reg_num, registr_yr) %>%
+  distinct() %>%
+  count(registr_yr)
+```
+
 ### Analysis
 
-First we look into how many duke students registered to vote during
-presidential election years.
+First we look into how many duke students actively registered to vote
+during presidential election years.
 
-![](README_files/figure-gfm/reg-election-1.png)<!-- -->
+![](README_files/figure-gfm/reg-active-1.png)<!-- -->
 
 Interestingly, it seems as if Duke students were the most motivated to
 registered to vote in the 2012 election. It would be interesting to
@@ -60,18 +90,24 @@ investigate further whether this is actually true- and dig into why, or
 if this can be attributed to the methodology capturing the most duke
 students during 2012.
 
+Next we looked at how many Duke students were registered to vote-
+whether that be because they actively registered or because a previous
+voter registration carried over.
+
+![](README_files/figure-gfm/reg-election-1.png)<!-- -->
+
 Next we looked at Duke students who actually voted in presidential
 election years.
 
 ![](README_files/figure-gfm/voted-election-1.png)<!-- -->
 
-Here we compared our two data sets:
+Here we compared our three data sets:
 
 ![](README_files/figure-gfm/both-election-1.png)<!-- -->
 
-Interestingly, there seemed to be more voters than those who registered
-in 2020, more research is needed to understand if this is a data
-collection problem, or if this could actually have been the case.
+Interestingly, while the number of Duke students who were registered to
+vote in Durham, NC increased each election year, it seems the number of
+those who were actively registering or voting decreased.
 
 ### Next Steps:
 

@@ -86,32 +86,55 @@ full_data <- inner_join(
     datev = as.Date(election_lbl, format = "%m/%d/%Y"),
     voted_year = lubridate::year(datev)
     )
+```
 
+``` {r count-data}
 election_year <- full_data %>%
-  distinct(voter_reg_num, .keep_all = T) %>%
-  count(voted_year) %>%
-  filter(voted_year %in% c(2004, 2008, 2012, 2016, 2020))
+  filter(
+    str_detect(election_desc, "GENERAL"),
+    voted_year %in% c(2004, 2008, 2012, 2016, 2020)
+    ) %>%
+  select(voter_reg_num, voted_year) %>%
+  distinct() %>%
+  count(voted_year)
+  
+
 election_yr_reg <- duke_students %>%
-  distinct(voter_reg_num, .keep_all = T) %>%
-  count(registr_yr) %>%
-  filter(registr_yr %in% c(2004, 2008, 2012, 2016, 2020))
+  mutate(cancel_yr = lubridate::year(cancellation_dt)) %>%
+  mutate(
+    cancel_yr = ifelse(cancel_yr == 1900, 2023, cancel_yr)
+  ) %>%
+  transmute(voter_reg_num, year = map2(registr_yr, cancel_yr, seq, by = 1)) %>%
+  unnest(cols = c(year)) %>%
+  filter(year %in% c(2004, 2008, 2012, 2016, 2020)) %>%
+  select(voter_reg_num, year) %>%
+  distinct() %>%
+  count(year)
+
+newly_reg <- duke_students %>%
+  filter(registr_yr %in% c(2004, 2008, 2012, 2016, 2020)) %>%
+  select(voter_reg_num, registr_yr) %>%
+  distinct() %>%
+  count(registr_yr)
 ```
 
 
 ### Analysis
 
-First we look into how many duke students registered to vote during presidential election years.
+First we look into how many duke students actively registered to vote during 
+presidential election years.
 
-```{r reg-election, echo = F}
+```{r reg-active, echo = F}
 duke_students %>%
   ggplot(aes(x = registr_yr, y = n)) +
-  geom_line(data = election_yr_reg, color = "red") +
-  geom_point(data = election_yr_reg, color = "red", size = 3) +
+  geom_line(data = newly_reg, color = "green") +
+  geom_point(data = newly_reg, color = "green", size = 3) +
   scale_y_continuous(labels = scales::label_comma()) +
   scale_x_continuous(breaks = seq(2000, 2020, by = 4)) +
   labs(
     x = "Year",
-    y = "Number of Duke students registered"
+    y = "Number of Duke students who registered",
+    title = "Number of Duke students who actively registered to vote"
   ) +
   theme_minimal()
 ```
@@ -121,6 +144,25 @@ registered to vote in the 2012 election. It would be interesting to investigate
 further whether this is actually true- and dig into why, or if this can be 
 attributed to the methodology capturing the most duke students during 2012. 
 
+
+Next we looked at how many Duke students were registered to vote- whether that 
+be because they actively registered or because a previous voter registration 
+carried over. 
+
+```{r reg-election, echo = F}
+duke_students %>%
+  ggplot(aes(x = year, y = n)) +
+  geom_line(data = election_yr_reg, color = "red") +
+  geom_point(data = election_yr_reg, color = "red", size = 3) +
+  scale_y_continuous(labels = scales::label_comma()) +
+  scale_x_continuous(breaks = seq(2000, 2020, by = 4)) +
+  labs(
+    x = "Year",
+    y = "Number of Duke students who registered",
+    title = "Number of Duke students who were registered to vote"
+  ) +
+  theme_minimal()
+```
 
 Next we looked at Duke students who actually voted in presidential election 
 years.
@@ -139,20 +181,23 @@ full_data %>%
   theme_minimal()
 ```
 
-Here we compared our two data sets:
+Here we compared our three data sets:
 
 ```{r both-election, echo = F, warning = F}
 ggplot() +
-  geom_line(data = election_yr_reg, aes(x = registr_yr, y = n, color = "Registered")) +
+  geom_line(data = election_yr_reg, aes(x = year, y = n, color = "Registered")) +
   geom_line(data = election_year, aes(x = voted_year, y = n, color = "Voted")) +
-  geom_point(data = election_yr_reg, aes(x = registr_yr, y = n, color = "Registered")) +
+  geom_line(data = newly_reg, aes(x = registr_yr, y = n, color = "Active Registration")) +
+  geom_point(data = election_yr_reg, aes(x = year, y = n, color = "Registered")) +
   geom_point(data = election_year, aes(x = voted_year, y = n, color = "Voted")) +
+  geom_point(data = newly_reg, aes(x = registr_yr, y = n, color = "Active Registration")) +
   scale_y_continuous(labels = scales::label_comma()) +
   scale_x_continuous(breaks = seq(2012, 2020, by = 4), limits = c(2012, 2020)) +
   scale_color_manual(
     name = "Duke Students",
-    breaks = c("Voted", "Registered"),
-    values = c("Voted" = "blue", "Registered" = "red")
+    breaks = c("Voted", "Registered", "Active Registration"),
+    values = c("Voted" = "blue", "Registered" = "red", 
+               "Active Registration" = "green")
   ) +
   labs(
     x = "Year",
@@ -162,9 +207,10 @@ ggplot() +
   theme_minimal()
 ```
 
-Interestingly, there seemed to be more voters than those who registered in 2020, 
-more research is needed to understand if this is a data collection problem, or 
-if this could actually have been the case. 
+Interestingly, while the number of Duke students who were registered to vote in 
+Durham, NC increased each election year, it seems the number of those who were 
+actively registering or voting decreased.
+
 
 ### Next Steps:
 Regardless, with midterm elections coming up it is important for all the Duke 
