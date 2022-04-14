@@ -1,7 +1,5 @@
-Final Memo
+Final memo
 ================
-Margaret Reed
-4/15/2022
 
 ### Intro
 
@@ -49,35 +47,25 @@ begin our analysis.
 
 ### Analysis
 
-We were interested in voter registration numbers over time.
+![](README_files/figure-gfm/all-election-1.png)<!-- -->
 
 First, we looked into how many Duke students actively registered to vote
 during the presidential election years. Interestingly, it seems Duke
 students were the most motivated to register to vote in the 2012
 election. It would be interesting to investigate further whether this is
 true- and dig into why, or if this can be attributed to the methodology
-we used to classify Duke students in 2012.
+we used to classify Duke students in 2012. Next, we looked at how many
+Duke students were registered to vote- whether that be because they
+actively registered or because a previous voter registration carried
+over. This value increased steadily over time, likely due to students
+forgetting to cancel their registration despite moving out of the
+county/state.
 
-Next, we looked at how many Duke students were registered to vote-
-whether that be because they actively registered or because a previous
-voter registration carried over. This value increased steadily over
-time, likely due to students forgetting to cancel their registration
-despite moving out of the county/state.
-
-![](README_files/figure-gfm/plots-together-1.png)<!-- -->
-
-We also looked at Duke students who voted in presidential election
-years. Voting numbers appeared to decrease from 2012 to 2020.
-
-![](README_files/figure-gfm/voted-election-1.png)<!-- -->
-
-![](README_files/figure-gfm/both-election-1.png)<!-- -->
+![](README_files/figure-gfm/prop-plot-1.png)<!-- -->
 
 We also graphed the proportion of registered Duke students who voted in
 Durham, NC. Likewise, the number of those who took advantage of their
 voter registration status and voted decreased from 2012 to 2020.
-
-![](README_files/figure-gfm/prop-plot-1.png)<!-- -->
 
 ### Conclusion:
 

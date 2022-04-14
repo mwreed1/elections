@@ -82,6 +82,22 @@ newly_reg <- duke_students %>%
   count(registr_yr)
 ```
 
+```{r}
+prop_table <- election_year %>% 
+  rename(year = voted_year, num_voted  = n) %>%
+  full_join(
+    election_yr_reg %>%
+      rename(num_registered = n)
+  ) %>%
+  full_join(
+    newly_reg %>%
+      rename(year = registr_yr, num_actively_registered = n)
+  ) %>%
+  mutate(
+    active_prop = num_actively_registered / num_registered,
+    voted_prop = num_voted / num_registered
+  )
+```
 
 
 ```{r}
