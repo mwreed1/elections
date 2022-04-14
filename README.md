@@ -47,88 +47,72 @@ have decided to vote in their home county or state. After classifying
 who the Duke students were (within our methodology), we were ready to
 begin our analysis.
 
-``` r
-election_year <- full_data %>%
-  filter(
-    str_detect(election_desc, "GENERAL"),
-    voted_year %in% c(2004, 2008, 2012, 2016, 2020)
-    ) %>%
-  select(voter_reg_num, voted_year) %>%
-  distinct() %>%
-  count(voted_year)
-  
-
-election_yr_reg <- duke_students %>%
-  mutate(cancel_yr = lubridate::year(cancellation_dt)) %>%
-  mutate(
-    cancel_yr = ifelse(cancel_yr == 1900, 2023, cancel_yr)
-  ) %>%
-  transmute(voter_reg_num, year = map2(registr_yr, cancel_yr, seq, by = 1)) %>%
-  unnest(cols = c(year)) %>%
-  filter(year %in% c(2004, 2008, 2012, 2016, 2020)) %>%
-  select(voter_reg_num, year) %>%
-  distinct() %>%
-  count(year)
-
-newly_reg <- duke_students %>%
-  filter(registr_yr %in% c(2004, 2008, 2012, 2016, 2020)) %>%
-  select(voter_reg_num, registr_yr) %>%
-  distinct() %>%
-  count(registr_yr)
-```
-
 ### Analysis
 
-First we look into how many duke students actively registered to vote
-during presidential election years.
+We were interested in voter registration numbers over time.
 
-![](README_files/figure-gfm/reg-active-1.png)<!-- -->
+First, we looked into how many Duke students actively registered to vote
+during the presidential election years. Interestingly, it seems Duke
+students were the most motivated to register to vote in the 2012
+election. It would be interesting to investigate further whether this is
+true- and dig into why, or if this can be attributed to the methodology
+we used to classify Duke students in 2012.
 
-Interestingly, it seems as if Duke students were the most motivated to
-registered to vote in the 2012 election. It would be interesting to
-investigate further whether this is actually true- and dig into why, or
-if this can be attributed to the methodology capturing the most duke
-students during 2012.
-
-Next we looked at how many Duke students were registered to vote-
+Next, we looked at how many Duke students were registered to vote-
 whether that be because they actively registered or because a previous
-voter registration carried over.
+voter registration carried over. This value increased steadily over
+time, likely due to students forgetting to cancel their registration
+despite moving out of the county/state.
 
-![](README_files/figure-gfm/reg-election-1.png)<!-- -->
+![](README_files/figure-gfm/plots-together-1.png)<!-- -->
 
-Next we looked at Duke students who actually voted in presidential
-election years.
+We also looked at Duke students who voted in presidential election
+years. Voting numbers appeared to decrease from 2012 to 2020.
 
 ![](README_files/figure-gfm/voted-election-1.png)<!-- -->
 
-Here we compared our three data sets:
-
 ![](README_files/figure-gfm/both-election-1.png)<!-- -->
 
-Interestingly, while the number of Duke students who were registered to
-vote in Durham, NC increased each election year, it seems the number of
-those who were actively registering or voting decreased.
+We also graphed the proportion of registered Duke students who voted in
+Durham, NC. Likewise, the number of those who took advantage of their
+voter registration status and voted decreased from 2012 to 2020.
+
+![](README_files/figure-gfm/prop-plot-1.png)<!-- -->
+
+### Conclusion:
+
+Based on our analysis from 2012 to 2020, Duke students are both
+registering to vote and voting less in presidential elections in Durham
+county, NC. Perhaps they are less motivated by the candidate or have
+less access to the polls. Alternatively, it is also possible that over
+time, more Duke students are choosing to vote in their home state/county
+rather than using their Duke residence. This might be because they feel
+they will have more of an impact in other states or because they don’t
+want to change their registration.
 
 ### Next Steps:
 
 Regardless, with midterm elections coming up it is important for all the
 Duke students who are interested, to feel comfortable and empowered to
-register and then vote.
+register and then vote. Duke provides resources for students and faculty
+through the site [Duke Votes](https://vote.duke.edu/). According to
+their homepage, those who have questions can contact Duke Votes chair,
+Daisy Lane, at <margarita.lane@duke.edu>. They provide several
+[resources](https://vote.duke.edu/resources/) for those looking to get
+involved and/or register to vote.
 
-  - People to contact
-
-  - duke orgs for voting/ registering on campus
-
-  - final thoughts / conclusions
+If we had more time, we would like to further hone our methodology for
+determining who is a Duke student and investigate what caused the surge
+in registrations and voting in 2012.
 
 ### Further analysis
 
-We also looked some into our secondary question of how Duke student’s
-poltical party affiliations changed over time.
+We also looked into our secondary question of how Duke students’
+political party affiliations changed over time.
 
 ![](README_files/figure-gfm/party-time-election-reg-1.png)<!-- -->
 
-It seems that the number of Duke students registered as Democrat
+It seems that the number of Duke students registered as Democrats
 increased over time and the number of Duke students registered as
 unaffiliated decreased.
 
@@ -137,4 +121,5 @@ The same pattern can be seen in this filled bar chart.
 ![](README_files/figure-gfm/party-split-reg-1.png)<!-- -->
 
 Additionally we looked at voting method over time:
+
 ![](README_files/figure-gfm/vote-method-1.png)<!-- -->

@@ -39,7 +39,8 @@ follows:
 - Otherwise, the street name must be one of the following: "Duke University West 
 Campus", "Duke University East Campus", "Towerview", "Alexander", or "Yearby".
 
-- Finally, we also looked at two special cases: Duke-owned apartment 300 Swift, and the few outliers that were located on Campus Drive. 
+- Finally, we also looked at two special cases: Duke-owned apartment 300 Swift, 
+and the few outliers that were located on Campus Drive. 
 
 All of these decisions were driven by an exploration of the data and looking at 
 where high numbers of young people were concentrated near Duke's campus. Because 
@@ -53,6 +54,7 @@ methodology), we were ready to begin our analysis.
 library(tidyverse)
 library(janitor)
 library(scales)
+library(cowplot)
 ```
 
 ```{r load-data, include = F}
@@ -88,7 +90,7 @@ full_data <- inner_join(
     )
 ```
 
-``` {r count-data}
+``` {r count-data, include = F}
 election_year <- full_data %>%
   filter(
     str_detect(election_desc, "GENERAL"),
@@ -118,39 +120,58 @@ newly_reg <- duke_students %>%
   count(registr_yr)
 ```
 
+```{r prop-table, include = F}
+prop_table <- election_year %>% 
+  rename(year = voted_year, num_voted  = n) %>%
+  full_join(
+    election_yr_reg %>%
+      rename(num_registered = n)
+  ) %>%
+  full_join(
+    newly_reg %>%
+      rename(year = registr_yr, num_actively_registered = n)
+  ) %>%
+  mutate(
+    active_prop = num_actively_registered / num_registered,
+    voted_prop = num_voted / num_registered
+  )
+```
+
 
 ### Analysis
 
-First we look into how many duke students actively registered to vote during 
-presidential election years.
+
+We were interested in voter registration numbers over time. 
+
+First, we looked into how many Duke students actively registered to vote during 
+the presidential election years. Interestingly, it seems Duke students were the 
+most motivated to register to vote in the 2012 election. It would be interesting 
+to investigate further whether this is true- and dig into why, or if this can be 
+attributed to the methodology we used to classify Duke students in 2012. 
+
+Next, we looked at how many Duke students were registered to vote- whether that 
+be because they actively registered or because a previous voter registration 
+carried over. This value increased steadily over time, likely due to students 
+forgetting to cancel their registration despite moving out of the county/state. 
+
 
 ```{r reg-active, echo = F}
-duke_students %>%
+p1 <- duke_students %>%
   ggplot(aes(x = registr_yr, y = n)) +
   geom_line(data = newly_reg, color = "green") +
   geom_point(data = newly_reg, color = "green", size = 3) +
   scale_y_continuous(labels = scales::label_comma()) +
   scale_x_continuous(breaks = seq(2000, 2020, by = 4)) +
   labs(
-    x = "Year",
-    y = "Number of Duke students who registered",
-    title = "Number of Duke students who actively registered to vote"
+    x = NULL,
+    y = NULL,
+    title = "Number of Duke students who actively registered to vote in Durham, NC"
   ) +
   theme_minimal()
 ```
 
-Interestingly, it seems as if Duke students were the most motivated to 
-registered to vote in the 2012 election. It would be interesting to investigate 
-further whether this is actually true- and dig into why, or if this can be 
-attributed to the methodology capturing the most duke students during 2012. 
-
-
-Next we looked at how many Duke students were registered to vote- whether that 
-be because they actively registered or because a previous voter registration 
-carried over. 
-
 ```{r reg-election, echo = F}
-duke_students %>%
+p2 <- duke_students %>%
   ggplot(aes(x = year, y = n)) +
   geom_line(data = election_yr_reg, color = "red") +
   geom_point(data = election_yr_reg, color = "red", size = 3) +
@@ -158,14 +179,20 @@ duke_students %>%
   scale_x_continuous(breaks = seq(2000, 2020, by = 4)) +
   labs(
     x = "Year",
-    y = "Number of Duke students who registered",
-    title = "Number of Duke students who were registered to vote"
+    y = NULL,
+    title = "Number of Duke students who were registered to vote in Durham, NC"
   ) +
   theme_minimal()
 ```
 
-Next we looked at Duke students who actually voted in presidential election 
-years.
+```{r plots-together, echo = F}
+cowplot::plot_grid(p1, p2, ncol = 1)
+```
+
+
+We also looked at Duke students who voted in presidential election years. Voting 
+numbers appeared to decrease from 2012 to 2020.
+
 
 ```{r voted-election, echo = F}
 full_data %>%
@@ -176,12 +203,13 @@ full_data %>%
   scale_x_continuous(breaks = seq(2000, 2020, by = 4)) +
   labs(
     x = "Year",
-    y = "Number of Duke students who voted"
+    y = "Number of students",
+    title = "Number of Duke students who actually voted in Durham, NC"
   ) +
   theme_minimal()
 ```
 
-Here we compared our three data sets:
+
 
 ```{r both-election, echo = F, warning = F}
 ggplot() +
@@ -202,34 +230,66 @@ ggplot() +
   labs(
     x = "Year",
     y = "Number of Duke students",
-    title = "Number of Duke students who voted vs who registered to vote"
+    title = "Number of Duke students who voted vs who registered to vote in Durham, NC"
   ) +
   theme_minimal()
 ```
 
-Interestingly, while the number of Duke students who were registered to vote in 
-Durham, NC increased each election year, it seems the number of those who were 
-actively registering or voting decreased.
+
+We also graphed the proportion of registered Duke students who voted in Durham, 
+NC. Likewise, the number of those who took advantage of their voter registration 
+status and voted decreased from 2012 to 2020. 
+
+```{r prop-plot, echo = F}
+prop_table %>%
+  drop_na(voted_prop) %>%
+  ggplot(aes(x = as.factor(year), y = voted_prop)) +
+  geom_col(fill = "blue4") +
+  geom_text(
+    aes(label = paste0(round(voted_prop, 2)*100, "%")), 
+    vjust = 1.5, 
+    color = "white"
+    ) +
+  scale_y_continuous(labels = label_percent()) +
+  labs(
+    x = "Year",
+    y = "Percent of registered students",
+    title = "Percent of registered Duke students who actually voted"
+  ) +
+  theme_minimal()
+```
+
+### Conclusion:
+
+Based on our analysis from 2012 to 2020, Duke students are both registering to 
+vote and voting less in presidential elections in Durham county, NC. Perhaps 
+they are less motivated by the candidate or have less access to the polls. 
+Alternatively, it is also possible that over time, more Duke students are 
+choosing to vote in their home state/county rather than using their Duke 
+residence. This might be because they feel they will have more of an impact in 
+other states or because they don't want to change their registration. 
 
 
 ### Next Steps:
+
 Regardless, with midterm elections coming up it is important for all the Duke 
 students who are interested, to feel comfortable and empowered to register and 
-then vote. 
+then vote. Duke provides resources for students and faculty through the site 
+[Duke Votes](https://vote.duke.edu/). According to their homepage, those who 
+have questions can contact Duke Votes chair, Daisy Lane, at 
+margarita.lane@duke.edu. They provide several 
+[resources](https://vote.duke.edu/resources/) for those looking to get 
+involved and/or register to vote. 
 
-- People to contact
-
-- duke orgs for voting/ registering on campus
-
-- final thoughts / conclusions
-
-
+If we had more time, we would like to further hone our methodology for 
+determining who is a Duke student and investigate what caused the surge in 
+registrations and voting in 2012. 
 
 
 ### Further analysis
 
-We also looked some into our secondary question of how Duke student's poltical 
-party affiliations changed over time. 
+We also looked into our secondary question of how Duke students' political 
+party affiliations changed over time.
 
 ```{r party-time-election-reg, echo = F}
 duke_students %>%
@@ -250,9 +310,8 @@ duke_students %>%
   theme_minimal()
 ```
 
-It seems that the number of Duke students registered as Democrat increased over 
-time and the number of Duke students registered as unaffiliated decreased. 
-
+It seems that the number of Duke students registered as Democrats increased over 
+time and the number of Duke students registered as unaffiliated decreased.
 
 The same pattern can be seen in this filled bar chart.
 
@@ -273,6 +332,7 @@ duke_students %>%
 ```
 
 Additionally we looked at voting method over time:
+
 ```{r vote-method, echo = F}
 full_data %>%
   filter(voted_year %in% seq(2012, 2020, 4)) %>%
