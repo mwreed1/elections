@@ -40,6 +40,9 @@ Campus", "Duke University East Campus", "Towerview", "Alexander", or "Yearby".
 - Finally, we also looked at two special cases: Duke-owned apartment 300 Swift, 
 and the few outliers that were located on Campus Drive. 
 
+When considering students who were registered to vote, we imposed a 5 year limit 
+after which we no longer considered a registered individual a student. 
+
 All of these decisions were driven by an exploration of the data and looking at 
 where high numbers of young people were concentrated near Duke's campus. Because 
 our analysis only looks at registered voters in Durham county, NC- we are not 
@@ -106,6 +109,9 @@ election_yr_reg <- duke_students %>%
   ) %>%
   transmute(voter_reg_num, year = map2(registr_yr, cancel_yr, seq, by = 1)) %>%
   unnest(cols = c(year)) %>%
+  group_by(voter_reg_num) %>%
+  slice(1:5, .preserve = T) %>%
+  ungroup(voter_reg_num) %>%
   filter(year %in% c(2004, 2008, 2012, 2016, 2020)) %>%
   select(voter_reg_num, year) %>%
   distinct() %>%
