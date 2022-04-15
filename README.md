@@ -1,5 +1,11 @@
-Final memo
-================
+
+To: Tyler Dukes
+
+From: Margaret Reed, Caitlin Dougherty
+
+Date: April 15th, 2022
+
+Re: How has Duke student voting changed over time?
 
 ### Intro
 

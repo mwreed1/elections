@@ -1,11 +1,18 @@
 ---
-title: "Final memo"
 output: github_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = F, fig.height = 3)
 ```
+
+To: Tyler Dukes
+
+From: Margaret Reed, Caitlin Dougherty
+
+Date: April 15th, 2022
+
+Re: How has Duke student voting changed over time?
 
 
 ### Intro
