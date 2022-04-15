@@ -37,6 +37,10 @@ campus. The specific methodology is as follows:
   - Finally, we also looked at two special cases: Duke-owned apartment
     300 Swift, and the few outliers that were located on Campus Drive.
 
+When considering students who were registered to vote, we imposed a 5
+year limit after which we no longer considered a registered individual a
+student.
+
 All of these decisions were driven by an exploration of the data and
 looking at where high numbers of young people were concentrated near
 Duke’s campus. Because our analysis only looks at registered voters in
